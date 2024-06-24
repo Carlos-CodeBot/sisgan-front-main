@@ -9,7 +9,7 @@ export default function Index() {
       <Verify />
       <div className="flex">
         <Sidebar />
-        <div className="flex flex-col w-full">
+        <div className="flex flex-col w-5/6">
           <Header />
           <div className="flex-1">
             <Outlet />

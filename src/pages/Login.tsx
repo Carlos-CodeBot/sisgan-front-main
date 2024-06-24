@@ -17,39 +17,31 @@ export default function Login() {
   });
 
   const handleLogin = async () => {
-    const fakeResponse = { token: "fakeToken" };
-    localStorage.setItem("token", fakeResponse.token);
-
     setLoading(true);
     try {
       const response = await ApiService.post("/auth/login", {
-        username,
-        password,
+        email: username,
+        password: password,
       });
-      console.log("Response:", response);
+      sessionStorage.setItem("token", response.accesToken);
+
       setNotificationMessage({
-        message: "Login exitoso " + response.data.message,
+        message: "Login exitoso.",
         color: "success",
       });
-      // setTimeout(() => {
-      //   if (fakeResponse.token) {
-      //     navigate("/home");
-      //   }
-      // }, 2000);
+
+      setTimeout(() => {
+        navigate("/home");
+      }, 1000);
     } catch (error) {
       setNotificationMessage({
-        message: "An error occurred: " + error,
+        message: "An error occurred.",
         color: "error",
       });
     } finally {
       setLoading(false);
       setShowNotification(true);
     }
-    setTimeout(() => {
-      if (fakeResponse.token) {
-        navigate("/home");
-      }
-    }, 2000);
   };
 
   if (loading) return <Loading />;
@@ -78,9 +70,9 @@ export default function Login() {
           <div className="w-full">
             <input
               className="w-full py-2 px-6 rounded-md bg-secondary-100"
-              type="text"
+              type="email"
               value={username}
-              placeholder="Cedula de ciudadania"
+              placeholder="Correo Electronico"
               onChange={(e) => setUsername(e.target.value)}
             />
           </div>

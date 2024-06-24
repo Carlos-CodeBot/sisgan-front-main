@@ -6,19 +6,33 @@ export default function RegistrarMovimiento() {
   const { data, isEdit } = location.state || {};
 
   const fields = [
-    { name: "Origen", type: "text" },
-    { name: "Destino", type: "text" },
-    { name: "Fecha de aplicación", type: "date" },
-    { name: "Fecha de movilización", type: "date" },
-    { name: "Placa del vehículo", type: "text" },
-    { name: "Identificación del transportador", type: "number" },
-    { name: "Firma del solicitante", type: "file" },
-    { name: "Firma del funcionario del ICA", type: "file" },
+    { name: "origin", label: "Origen", type: "text" },
+    { name: "destination", label: "Destino", type: "text" },
+    { name: "applicationDate", label: "Fecha de aplicación", type: "date" },
+    { name: "movementDate", label: "Fecha de movilización", type: "date" },
+    { name: "vehiclePlate", label: "Placa del vehículo", type: "text" },
+    {
+      name: "transporterID",
+      label: "Identificación del transportador",
+      type: "number",
+    },
+    {
+      name: "signaturePetitioner",
+      label: "Firma del solicitante",
+      type: "file",
+    },
+    {
+      name: "ICAofficialSignature",
+      label: "Firma del funcionario del ICA",
+      type: "file",
+    },
   ];
+
   return (
     <Create
       fieldConfigurations={fields}
-      endpoint={"/movimiento/registrar"}
+      endpoint={"/internal-movement-guide"}
+      update="/internal-movement-guide"
       initialData={data}
       isEdit={isEdit}
     />

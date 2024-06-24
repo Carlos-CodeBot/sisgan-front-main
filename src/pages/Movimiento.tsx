@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import Notification from "../components/Notification";
 
 export default function Movimiento() {
-  const { data, loading, error } = FetchData("/health/say-hello");
+  const { data, loading, error } = FetchData("/ica-official/movements");
   const [showNotification, setShowNotification] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState({
     message: "",
@@ -26,7 +26,27 @@ export default function Movimiento() {
     return <Loading />;
   }
 
-  const dataTable = data ? data : [];
+  let dataTable = data ? data : [];
+  dataTable = dataTable.map((item) => {
+    return {
+      id: item.id,
+      placa: item.vehiclePlate,
+      origen: item.origin,
+      destino: item.destination,
+      "fecha aplicacion": item.applicationDate,
+      "fecha movilizacion": item.movementDate,
+    };
+  });
+
+  let editData = null;
+  if (data != null) {
+    editData = data.map((item) => {
+      return {
+        ...item,
+        transporterID: item.transporter.id,
+      };
+    });
+  }
 
   return (
     <>
@@ -36,7 +56,12 @@ export default function Movimiento() {
           color={notificationMessage.color}
         />
       )}
-      <Table data={dataTable} link={"/registrar-movimiento"} />
+      <Table
+        fullData={editData ? editData : []}
+        data={dataTable}
+        link={"/registrar-movimiento"}
+        del={"/internal-movement-guide"}
+      />
     </>
   );
 }

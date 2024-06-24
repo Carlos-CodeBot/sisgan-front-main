@@ -3,13 +3,22 @@ class ApiService {
   private baseUrl: string;
 
   constructor() {
-    this.baseUrl = "http://localhost:8080";
+    this.baseUrl = "https://sisback5.azurewebsites.net";
+  }
+
+  private getToken() {
+    return sessionStorage.getItem("token");
   }
 
   private async request(endpoint: string, method: string = "GET", body?: any) {
-    const headers = {
+    const headers: HeadersInit = {
       "Content-Type": "application/json",
     };
+
+    const token = this.getToken();
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
 
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
       method,
@@ -33,11 +42,11 @@ class ApiService {
   }
 
   public put(endpoint: string, data: any) {
-    return this.request(endpoint, "PUT", data);
+    return this.request(endpoint, "PATCH", data);
   }
 
-  public delete(endpoint: string) {
-    return this.request(endpoint, "DELETE");
+  public delete(endpoint: string, data: any) {
+    return this.request(endpoint, "DELETE", data);
   }
 }
 

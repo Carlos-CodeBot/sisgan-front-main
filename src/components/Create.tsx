@@ -1,18 +1,20 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ApiService from "../api/ApiService";
 import Loading from "./Loading";
 import Notification from "./Notification";
 
 interface FieldConfiguration {
   name: string;
+  label: string;
   type: string;
-  options?: string[];
+  options?: { label: string; value: string }[];
 }
 
 interface CreateFormProps {
   fieldConfigurations: FieldConfiguration[];
   endpoint: string;
+  update: string;
   initialData?: { [key: string]: any };
   isEdit?: boolean;
 }
@@ -20,6 +22,7 @@ interface CreateFormProps {
 const CreateForm: React.FC<CreateFormProps> = ({
   fieldConfigurations,
   endpoint,
+  update,
   initialData = {},
   isEdit = false,
 }) => {
@@ -37,6 +40,7 @@ const CreateForm: React.FC<CreateFormProps> = ({
     message: "",
     color: "",
   });
+
   const description =
     "Datos del " + endpoint.split("/")[1].replace(/-/g, " ").toLowerCase();
 
@@ -44,6 +48,14 @@ const CreateForm: React.FC<CreateFormProps> = ({
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
+    if (name === "transporterID") {
+      setFormData({
+        ...formData,
+        [name]: value,
+        transporter: { id: value },
+      });
+      return;
+    }
     setFormData({
       ...formData,
       [name]: value,
@@ -53,14 +65,13 @@ const CreateForm: React.FC<CreateFormProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    console.log("formData", formData);
     try {
       const response = isEdit
-        ? await ApiService.put(`${endpoint}/${formData.id}`, formData)
-        : await ApiService.post(endpoint, formData);
+        ? await ApiService.put(`${update}/${formData.id}`, formData)
+        : await ApiService.post(update, formData);
       console.log("Response:", response);
       setNotificationMessage({
-        message: "Operation successful! " + response.data.message,
+        message: "Operation successful!",
         color: "success",
       });
     } catch (error) {
@@ -78,6 +89,12 @@ const CreateForm: React.FC<CreateFormProps> = ({
     setFormData(initialFormState);
   };
 
+  useEffect(() => {
+    if (isEdit && initialData.id) {
+      setFormData(initialData);
+    }
+  }, []);
+
   if (loading) {
     return <Loading />;
   }
@@ -92,6 +109,11 @@ const CreateForm: React.FC<CreateFormProps> = ({
       )}
       <h2 className="text-2xl font-bold text-gray-500 mb-4">{description}</h2>
       <div className="grid grid-cols-2 gap-4">
+        {isEdit && initialData.id ? (
+          <input hidden name="id" type="number" defaultValue={initialData.id} />
+        ) : (
+          <></>
+        )}
         {fieldConfigurations.map((field) => (
           <div key={field.name} className="w-full mb-4">
             {field.type === "select" ? (
@@ -104,21 +126,22 @@ const CreateForm: React.FC<CreateFormProps> = ({
                 className="w-full py-2 px-6 rounded-md bg-secondary-100"
               >
                 <option value="" disabled>
-                  Seleccione {field.name.toLowerCase()}
+                  Seleccione {field.label.toLowerCase()}
                 </option>
                 {field.options?.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
+                  <option key={option.value} value={option.value}>
+                    {option.label}
                   </option>
                 ))}
               </select>
             ) : field.type === "file" ? (
               <input
+                name={field.name}
                 onFocus={(e) =>
                   field.type === "file" && (e.target.type = "file")
                 }
                 type={field.type === "file" ? "text" : field.type}
-                placeholder={field.name.replace(/-/g, " ")}
+                placeholder={field.label}
                 className="w-full py-2 px-6 rounded-md bg-secondary-100"
               />
             ) : (
@@ -126,7 +149,7 @@ const CreateForm: React.FC<CreateFormProps> = ({
                 name={field.name}
                 value={formData[field.name]}
                 onChange={handleChange}
-                placeholder={field.name.replace(/-/g, " ")}
+                placeholder={field.label}
                 onFocus={(e) =>
                   field.type === "date" && (e.target.type = "date")
                 }

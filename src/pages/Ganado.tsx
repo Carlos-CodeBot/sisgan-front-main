@@ -5,7 +5,7 @@ import Table from "../components/Table";
 import Notification from "../components/Notification";
 
 export default function Ganado() {
-  const { data, loading, error } = FetchData("/health/say-hello");
+  const { data, loading, error } = FetchData("/cattle/all");
   const [showNotification, setShowNotification] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState({
     message: "",
@@ -26,7 +26,18 @@ export default function Ganado() {
     return <Loading />;
   }
 
-  const dataTable = data ? data : [];
+  let dataTable = data ? data : [];
+  dataTable = dataTable.map((item) => {
+    return {
+      id: item.id,
+      raza: item.breed,
+      sexo: item.sex,
+      "fecha de nacimiento": item.birthDate,
+      peso: item.weight,
+      altura: item.height,
+      lote: item.lotId,
+    };
+  });
 
   return (
     <div>
@@ -36,7 +47,12 @@ export default function Ganado() {
           color={notificationMessage.color}
         />
       )}
-      <Table data={dataTable} link={"/registrar-ganado"} />
+      <Table
+        fullData={data ? data : []}
+        data={dataTable}
+        link={"/registrar-ganado"}
+        del={"/cattle/delete"}
+      />
     </div>
   );
 }

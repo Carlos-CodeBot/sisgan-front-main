@@ -3,6 +3,7 @@ import { NavLink } from "react-router-dom";
 import { useState } from "react";
 import Notification from "../components/Notification";
 import Loading from "../components/Loading";
+import ApiService from "../api/ApiService";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -20,15 +21,15 @@ export default function Register() {
   };
 
   const [formData, setFormData] = useState({
-    finca: "",
-    cedula: "",
-    licencia: "",
-    ica: "",
-    rol: "",
-    nombre: "",
-    apellido: "",
+    farmName: "",
+    idCard: "",
+    idDrivingLicense: "",
+    idCardIca: "",
+    role: "",
+    firstName: "",
+    lastName: "",
     email: "",
-    date: "",
+    birthDate: "",
     password: "",
     confirmPassword: "",
   });
@@ -45,28 +46,28 @@ export default function Register() {
     e.preventDefault();
 
     const {
-      finca,
-      cedula,
-      licencia,
-      ica,
-      rol,
-      nombre,
-      apellido,
+      farmName,
+      idCard,
+      idDrivingLicense,
+      idCardIca,
+      role,
+      firstName,
+      lastName,
       email,
-      date,
+      birthDate,
       password,
       confirmPassword,
     } = formData;
     if (
-      !finca ||
-      !cedula ||
-      !licencia ||
-      !ica ||
-      !rol ||
-      !nombre ||
-      !apellido ||
+      !farmName ||
+      !idCard ||
+      !idDrivingLicense ||
+      !idCardIca ||
+      !role ||
+      !firstName ||
+      !lastName ||
       !email ||
-      !date ||
+      !birthDate ||
       !password ||
       !confirmPassword
     ) {
@@ -80,15 +81,17 @@ export default function Register() {
 
     setLoading(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      setNotificationMessage({
-        message:
-          "Registro exitoso, redirigiendo a la pagina de inicio de sesion...",
-        color: "success",
-      });
-      setTimeout(() => {
-        navigate("/login");
-      }, 2000);
+      const response = await ApiService.post("/auth/sign-up", formData);
+      if (response) {
+        setNotificationMessage({
+          message:
+            "Registro exitoso, redirigiendo a la pagina de inicio de sesion...",
+          color: "success",
+        });
+        setTimeout(() => {
+          navigate("/login");
+        }, 1000);
+      }
     } catch (error) {
       setNotificationMessage({
         message: "An error occurred: " + error,
@@ -133,8 +136,8 @@ export default function Register() {
             <input
               className="w-full py-2 px-6 rounded-md bg-secondary-100"
               type="text"
-              name="finca"
-              value={formData.finca}
+              name="farmName"
+              value={formData.farmName}
               placeholder="Nombre de la finca"
               onChange={handleInputChange}
             />
@@ -159,17 +162,17 @@ export default function Register() {
             <input
               className="w-full py-2 px-6 rounded-md bg-secondary-100"
               type="number"
-              name="cedula"
-              value={formData.cedula}
-              placeholder="Cedula de ciudadania"
+              name="idCard"
+              value={formData.idCard}
+              placeholder="Cédula de ciudadanía"
               onChange={handleInputChange}
             />
             <input
               className="w-full py-2 px-6 rounded-md bg-secondary-100"
               type="number"
-              name="licencia"
-              value={formData.licencia}
-              placeholder="Licencia de conduccion"
+              name="idDrivingLicense"
+              value={formData.idDrivingLicense}
+              placeholder="Licencia de conducción"
               onChange={handleInputChange}
             />
           </div>
@@ -177,19 +180,24 @@ export default function Register() {
             <input
               className="w-full py-2 px-6 rounded-md bg-secondary-100"
               type="text"
-              name="ica"
-              value={formData.ica}
-              placeholder="Identificacfion del ICA"
+              name="idCardIca"
+              value={formData.idCardIca}
+              placeholder="Identificación del ICA"
               onChange={handleInputChange}
             />
-            <input
+            <select
               className="w-full py-2 px-6 rounded-md bg-secondary-100"
-              type="text"
-              name="rol"
-              value={formData.rol}
-              placeholder="Seleccione su rol"
+              name="role"
+              value={formData.role}
               onChange={handleInputChange}
-            />
+            >
+              <option value="" disabled>
+                Seleccione su rol
+              </option>
+              <option value="ICA">ICA</option>
+              <option value="TRANSPORTER">TRANSPORTER</option>
+              <option value="PROPIETARY">PROPIETARY</option>
+            </select>
           </div>
           <hr className="bg-secondary-100 w-full h-0.5" />
           <p>Datos personales</p>
@@ -197,16 +205,16 @@ export default function Register() {
             <input
               className="w-full py-2 px-6 rounded-md bg-secondary-100"
               type="text"
-              name="nombre"
-              value={formData.nombre}
+              name="firstName"
+              value={formData.firstName}
               placeholder="Nombre"
               onChange={handleInputChange}
             />
             <input
               className="w-full py-2 px-6 rounded-md bg-secondary-100"
               type="text"
-              name="apellido"
-              value={formData.apellido}
+              name="lastName"
+              value={formData.lastName}
               placeholder="Apellido"
               onChange={handleInputChange}
             />
@@ -217,15 +225,14 @@ export default function Register() {
               type="email"
               name="email"
               value={formData.email}
-              placeholder="Correo electronico"
+              placeholder="Correo electrónico"
               onChange={handleInputChange}
             />
             <input
               className="w-full py-2 px-6 rounded-md bg-secondary-100"
               type="date"
-              name="date"
-              value={formData.date}
-              placeholder="Fecha de nacimiento"
+              name="birthDate"
+              value={formData.birthDate}
               onChange={handleInputChange}
             />
           </div>
@@ -237,6 +244,7 @@ export default function Register() {
               value={formData.password}
               placeholder="Contraseña"
               onChange={handleInputChange}
+              autoComplete="new-password"
             />
             <input
               className="w-full py-2 px-6 rounded-md bg-secondary-100"
@@ -245,6 +253,7 @@ export default function Register() {
               value={formData.confirmPassword}
               placeholder="Confirmar contraseña"
               onChange={handleInputChange}
+              autoComplete="new-password"
             />
           </div>
           <button
@@ -257,7 +266,7 @@ export default function Register() {
         <p className="text-sm">
           ¿Ya tienes una cuenta?{" "}
           <NavLink to={"/login"} className="text-primary-100">
-            Ingresa aqui
+            Ingresa aquí
           </NavLink>
         </p>
       </div>
